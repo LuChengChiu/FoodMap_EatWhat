@@ -835,7 +835,7 @@ export default function HomeNew() {
                 ? "opacity-0 pointer-events-none"
                 : "opacity-100")
             }
-            onClick={(e) => setListMove(true)}
+            onClick={() => setListMove(true)}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
