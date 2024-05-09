@@ -1,6 +1,7 @@
 import { Loader } from "@googlemaps/js-api-loader";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+// import { setMap } from "google.maps";
 import "./App.css";
 export default function HomeNew() {
   let map: google.maps.Map, infoWindow: google.maps.InfoWindow;
@@ -17,9 +18,9 @@ export default function HomeNew() {
   const [rateQ, setRateQ] = useState(0);
   const [msg, setMsg] = useState("");
   const [errMsg, setErrMsg] = useState("");
-  const [restaurants, setRestaurants] = useState<Array<Object>>();
+  const [restaurants, setRestaurants] = useState<Array<Object> | any>();
   const [theMap, setTheMap] = useState<google.maps.Map | any>(undefined);
-  const [oldCircle, setOldCircle] = useState<Object>();
+  const [oldCircle, setOldCircle] = useState<Object | any>();
   const [oldMarkers, setOldMarkers] = useState<Array<any>>();
   const [listMove, setListMove] = useState(false);
   infoWindow = new google.maps.InfoWindow();
@@ -177,7 +178,6 @@ export default function HomeNew() {
     }
   };
   const resultFilter = (list: Array<any>) => {
-    console.log(list, 123);
     let filterPrice = list;
     if (price.length !== 0) {
       filterPrice = list.filter((store) => {
@@ -280,6 +280,7 @@ export default function HomeNew() {
         });
     });
   };
+  console.log(restaurants);
 
   return (
     <>
