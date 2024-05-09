@@ -1,5 +1,5 @@
 import { Loader } from "@googlemaps/js-api-loader";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavLink } from "react-router-dom";
 // import { setMap } from "google.maps";
 import "./App.css";
