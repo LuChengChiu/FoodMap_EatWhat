@@ -23,12 +23,31 @@ export default function HomeNew() {
   const [oldCircle, setOldCircle] = useState<Object | any>();
   const [oldMarkers, setOldMarkers] = useState<Array<any>>();
   const [listMove, setListMove] = useState(false);
+  window.onload = function () {
+    initMap();
+    document.addEventListener("click", (e: any) => {
+      const isDropdownBtn = e.target.matches("[data-dropdown-btn]");
+      if (!isDropdownBtn && e.target.closest("[data-dropdown]") != null) return;
+
+      let currentDropdown: any;
+      if (isDropdownBtn) {
+        currentDropdown = e.target.closest("[data-dropdown]");
+        currentDropdown.classList.toggle("active");
+      }
+      document
+        .querySelectorAll("[data-dropdown].active")
+        .forEach((dropdown) => {
+          if (dropdown === currentDropdown) return;
+          dropdown.classList.remove("active");
+        });
+    });
+  };
   infoWindow = new google.maps.InfoWindow();
-  useEffect(() => {
-    if (document.getElementById("map")) {
-      initMap();
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (document.getElementById("map")) {
+  //     // initMap();
+  //   }
+  // }, []);
   const initMap = () => {
     const loader = new Loader({
       apiKey: import.meta.env.VITE_REACT_APP_FOOD_MAP_API_KEY,
@@ -40,7 +59,7 @@ export default function HomeNew() {
       )) as google.maps.MapsLibrary;
       map = new Map(document.getElementById("map") as HTMLElement, {
         center: { lat: 25.038429, lng: 121.535889 },
-        zoom: 15,
+        zoom: 17,
       });
       setTheMap(map);
     });
@@ -262,25 +281,8 @@ export default function HomeNew() {
   const unWorkBtn = (e: any) => {
     e.preventDefault();
   };
-  window.onload = function () {
-    document.addEventListener("click", (e: any) => {
-      const isDropdownBtn = e.target.matches("[data-dropdown-btn]");
-      if (!isDropdownBtn && e.target.closest("[data-dropdown]") != null) return;
 
-      let currentDropdown: any;
-      if (isDropdownBtn) {
-        currentDropdown = e.target.closest("[data-dropdown]");
-        currentDropdown.classList.toggle("active");
-      }
-      document
-        .querySelectorAll("[data-dropdown].active")
-        .forEach((dropdown) => {
-          if (dropdown === currentDropdown) return;
-          dropdown.classList.remove("active");
-        });
-    });
-  };
-  console.log(restaurants);
+  // console.log(restaurants);
 
   return (
     <>
