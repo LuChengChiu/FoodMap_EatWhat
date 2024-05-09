@@ -5,9 +5,9 @@ import "./App.css";
 export default function HomeNew() {
   let map: google.maps.Map, infoWindow: google.maps.InfoWindow;
   let service;
-  const [userCurrentLocation, setUserCurrentLocation] = useState("");
+  const [userCurrentLocation, setUserCurrentLocation] = useState<Object>("");
   const [distance, setDistance] = useState(500);
-  const [price, setPrice] = useState([]);
+  const [price, setPrice] = useState<number[]>([]);
   const [opening, setOpening] = useState(false);
   const [storeType, setStoreType] = useState(["restaurant"]);
   const [storeNum, setStoreNum] = useState(3);
@@ -15,17 +15,15 @@ export default function HomeNew() {
   const [rateQ, setRateQ] = useState(0);
   const [msg, setMsg] = useState("");
   const [errMsg, setErrMsg] = useState("");
-  const [restaurants, setRestaurants] = useState("");
+  const [restaurants, setRestaurants] = useState<Array<Object>>();
   const [theMap, setTheMap] = useState();
   const [oldCircle, setOldCircle] = useState();
   const [oldMarkers, setOldMarkers] = useState();
   const [listMove, setListMove] = useState(false);
-  const [loading, setLoading] = useState(false);
-
+  infoWindow = new google.maps.InfoWindow();
   useEffect(() => {
     if (document.getElementById("map")) {
       initMap();
-      infoWindow = new google.maps.InfoWindow();
     }
   }, []);
   const initMap = () => {
@@ -97,15 +95,11 @@ export default function HomeNew() {
   }
   const searchHandler = () => {
     setErrMsg("");
-    setLoading(true);
     if (userCurrentLocation) {
       searchPlace();
     } else {
       setErrMsg("無法偵測到您的目前位置!");
     }
-    setTimeout(() => {
-      setLoading(false);
-    }, 300);
   };
   const searchPlace = () => {
     if (oldCircle) {
@@ -133,7 +127,7 @@ export default function HomeNew() {
     console.log(service, theMap);
     service.nearbySearch(request, cb);
   };
-  const cb = (results, status) => {
+  const cb = (results: any, status: any) => {
     console.log(
       google.maps.places.PlacesServiceStatus,
       status,
@@ -141,14 +135,14 @@ export default function HomeNew() {
       typeof storeType
     );
     if (status == google.maps.places.PlacesServiceStatus.OK) {
-      setRestaurants();
+      setRestaurants([]);
       const b4FilterResult: Array<object> = [];
       for (let i = 0; i < results.length; i++) {
         b4FilterResult.push(results[i]);
       }
       checkSectionQuality(b4FilterResult);
       const filterList = resultFilter(b4FilterResult);
-      const finalIndexs = [];
+      const finalIndexs: Array<number> = [];
       if (filterList.length >= storeNum) {
         while (finalIndexs.length < storeNum && filterList.length > 0) {
           let randomIndex = Math.floor(Math.random() * filterList?.length);
@@ -172,7 +166,6 @@ export default function HomeNew() {
           `符合篩選條件的${storeType}數量少於${storeNum}間，只有${filterList.length}間`
         );
         console.log(filterList);
-
         setRestaurants(filterList);
         createMarker(filterList);
       }
@@ -181,7 +174,8 @@ export default function HomeNew() {
       setErrMsg(`範圍內沒有任何一間${storeType[0].toUpperCase()}`);
     }
   };
-  const resultFilter = (list) => {
+  const resultFilter = (list: Array<any>) => {
+    console.log(list, 123);
     let filterPrice = list;
     if (price.length !== 0) {
       filterPrice = list.filter((store) => {
@@ -211,8 +205,8 @@ export default function HomeNew() {
       return filterPrice;
     }
   };
-  const priceHandler = (e) => {
-    const change = parseInt(e.target.value);
+  const priceHandler = (e: any) => {
+    const change: number = parseInt(e.target.value);
     const oldPrices = [...price];
     if (oldPrices.includes(change)) {
       const newPrices = oldPrices.filter((price) => {
@@ -224,7 +218,7 @@ export default function HomeNew() {
       setPrice(oldPrices);
     }
   };
-  const createMarker = (list) => {
+  const createMarker = (list: Array<any>) => {
     if (oldMarkers) {
       for (let i = 0; i < oldMarkers.length; i++) {
         oldMarkers[i].setMap(null);
@@ -232,10 +226,11 @@ export default function HomeNew() {
     }
     const markerList = [];
     for (let i = 0; i < list.length; i++) {
+      let name: string = list[i].name as string;
       const marker = new google.maps.Marker({
         position: list[i].geometry.location,
         map: theMap,
-        title: list[i].name,
+        title: name,
       });
       marker.addListener("click", () => {
         infoWindow.close();
@@ -246,25 +241,31 @@ export default function HomeNew() {
     }
     setOldMarkers(markerList);
   };
-  const checkSectionQuality = (list) => {
+  const checkSectionQuality = (list: Array<any>) => {
     setMsg("");
     for (let i = 0; i < list.length; i++) {
-      if (list[i].rating >= 3.5 || list[i].user_ratings_total >= 100) {
+      let rating: number = list[i].rating as number;
+      let rating_total: number = list[i].user_ratings_total as number;
+      if (rating >= 3.5 || rating_total >= 100) {
         // setMsg(`🔍美食沙漠發現!`);
         return false;
       }
+      // if (list[i].rating >= 3.5 || list[i].user_ratings_total >= 100) {
+      //   // setMsg(`🔍美食沙漠發現!`);
+      //   return false;
+      // }
     }
     setMsg(`🔍美食沙漠發現!`);
   };
-  const unWorkBtn = (e) => {
+  const unWorkBtn = (e: any) => {
     e.preventDefault();
   };
   window.onload = function () {
-    document.addEventListener("click", (e) => {
+    document.addEventListener("click", (e: any) => {
       const isDropdownBtn = e.target.matches("[data-dropdown-btn]");
       if (!isDropdownBtn && e.target.closest("[data-dropdown]") != null) return;
 
-      let currentDropdown;
+      let currentDropdown: any;
       if (isDropdownBtn) {
         currentDropdown = e.target.closest("[data-dropdown]");
         currentDropdown.classList.toggle("active");
@@ -371,6 +372,7 @@ export default function HomeNew() {
                     id="distance300"
                     value={300}
                     className="toggle-input"
+                    onClick={(e) => setDistance(parseInt(e.target.value))}
                   />
                   <label
                     htmlFor="distance300"
@@ -384,6 +386,7 @@ export default function HomeNew() {
                     id="distance500"
                     value={500}
                     className="toggle-input"
+                    onClick={(e) => setDistance(parseInt(e.target.value))}
                   />
                   <label
                     htmlFor="distance500"
@@ -397,6 +400,7 @@ export default function HomeNew() {
                     id="distance1000"
                     value={1000}
                     className="toggle-input"
+                    onClick={(e) => setDistance(parseInt(e.target.value))}
                   />{" "}
                   <label
                     htmlFor="distance1000"
