@@ -5,7 +5,9 @@ import "./App.css";
 export default function HomeNew() {
   let map: google.maps.Map, infoWindow: google.maps.InfoWindow;
   let service;
-  const [userCurrentLocation, setUserCurrentLocation] = useState<Object>("");
+  const [userCurrentLocation, setUserCurrentLocation] = useState<
+    Object | any
+  >();
   const [distance, setDistance] = useState(500);
   const [price, setPrice] = useState<number[]>([]);
   const [opening, setOpening] = useState(false);
@@ -16,9 +18,9 @@ export default function HomeNew() {
   const [msg, setMsg] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [restaurants, setRestaurants] = useState<Array<Object>>();
-  const [theMap, setTheMap] = useState();
-  const [oldCircle, setOldCircle] = useState();
-  const [oldMarkers, setOldMarkers] = useState();
+  const [theMap, setTheMap] = useState<google.maps.Map | any>(undefined);
+  const [oldCircle, setOldCircle] = useState<Object>();
+  const [oldMarkers, setOldMarkers] = useState<Array<any>>();
   const [listMove, setListMove] = useState(false);
   infoWindow = new google.maps.InfoWindow();
   useEffect(() => {
@@ -77,13 +79,13 @@ export default function HomeNew() {
         }
       );
     } else {
-      handleLocationError(false, infoWindow, map.getCenter());
+      handleLocationError(false, infoWindow, map?.getCenter());
     }
   };
   function handleLocationError(
     browserHasGeolocation: boolean,
     infoWindow: google.maps.InfoWindow,
-    pos: google.maps.LatLng
+    pos: google.maps.LatLng | undefined
   ) {
     infoWindow.setPosition(pos);
     infoWindow.setContent(
@@ -117,7 +119,7 @@ export default function HomeNew() {
       radius: distance, // Radius in meters
     });
     setOldCircle(circle);
-    let request = {
+    let request: Object = {
       location: userCurrentLocation,
       radius: distance,
       openNow: opening,
@@ -224,7 +226,7 @@ export default function HomeNew() {
         oldMarkers[i].setMap(null);
       }
     }
-    const markerList = [];
+    const markerList: Array<any> = [];
     for (let i = 0; i < list.length; i++) {
       let name: string = list[i].name as string;
       const marker = new google.maps.Marker({
@@ -372,7 +374,7 @@ export default function HomeNew() {
                     id="distance300"
                     value={300}
                     className="toggle-input"
-                    onClick={(e) => setDistance(parseInt(e.target.value))}
+                    onClick={(e: any) => setDistance(parseInt(e.target.value))}
                   />
                   <label
                     htmlFor="distance300"
@@ -386,7 +388,7 @@ export default function HomeNew() {
                     id="distance500"
                     value={500}
                     className="toggle-input"
-                    onClick={(e) => setDistance(parseInt(e.target.value))}
+                    onClick={(e: any) => setDistance(parseInt(e.target.value))}
                   />
                   <label
                     htmlFor="distance500"
@@ -400,7 +402,7 @@ export default function HomeNew() {
                     id="distance1000"
                     value={1000}
                     className="toggle-input"
-                    onClick={(e) => setDistance(parseInt(e.target.value))}
+                    onClick={(e: any) => setDistance(parseInt(e.target.value))}
                   />{" "}
                   <label
                     htmlFor="distance1000"
@@ -552,7 +554,7 @@ export default function HomeNew() {
                     max={5}
                     step={1}
                     defaultValue={3}
-                    onChange={(e) => {
+                    onChange={(e: any) => {
                       setStoreNum(e.target.value);
                     }}
                     className="tb:w-28 sm:scale-90 sm:max-h-5 sm:w-24"
@@ -580,7 +582,7 @@ export default function HomeNew() {
                     name="rate"
                     id="rate-25"
                     value={2.5}
-                    onChange={(e) => {
+                    onChange={(e: any) => {
                       setRate(e.target.value);
                     }}
                     className="toggle-input"
@@ -596,7 +598,7 @@ export default function HomeNew() {
                     name="rate"
                     id="rate-3"
                     value={3}
-                    onChange={(e) => {
+                    onChange={(e: any) => {
                       setRate(e.target.value);
                     }}
                     className="toggle-input"
@@ -612,7 +614,7 @@ export default function HomeNew() {
                     name="rate"
                     id="rate-35"
                     value={3.5}
-                    onChange={(e) => {
+                    onChange={(e: any) => {
                       setRate(e.target.value);
                     }}
                     className="toggle-input"
@@ -628,7 +630,7 @@ export default function HomeNew() {
                     name="rate"
                     id="rate-4"
                     value={4}
-                    onChange={(e) => {
+                    onChange={(e: any) => {
                       setRate(e.target.value);
                     }}
                     className="toggle-input"
@@ -644,7 +646,7 @@ export default function HomeNew() {
                     name="rate"
                     id="rate-45"
                     value={4.5}
-                    onChange={(e) => {
+                    onChange={(e: any) => {
                       setRate(e.target.value);
                     }}
                     className="toggle-input"
@@ -708,11 +710,12 @@ export default function HomeNew() {
         <div
           className={
             "absolute bg-white left-10 bottom-20 z-10 rounded-3xl px-3.5 py-3 w-80 h-72  shadow-2xl shadow-gray-500 overflow-hidden md:bottom-2 md:left-0 md:w-11/12 md:h-28 md:ml-2 tb:bottom-2 tb:left-0 tb:w-11/12 tb:h-28 tb:ml-2 sm:bottom-2 sm:left-0 sm:w-10/12 sm:h-24 sm:ml-2 opacity-0 transition-opacity duration-200 " +
-            (storeNum < 2
-              ? "h-32 bottom-52"
+            (storeNum <= 2
+              ? "h-32 bottom-10"
               : storeNum < 3 && "h-48 bottom-36") +
             " " +
-            (restaurants?.length > 0 && "opacity-100")
+            (restaurants?.length > 0 && "opacity-100") +
+            " h-auto"
           }
         >
           <span className="text-lg font-bold text-center block bg-white md:text-left tb:text-left sm:text-left tb:text-base sm:text-base">
@@ -721,7 +724,10 @@ export default function HomeNew() {
           </span>
           <div
             className={
-              "w-full h-60 overflow-hidden md:h-auto tb:h-auto sm:h-auto"
+              "w-full h-60 overflow-hidden md:h-full tb:h-auto sm:h-auto " +
+              (storeNum <= 2 && "h-auto") +
+              " " +
+              (restaurants?.length > 0 && "opacity-100")
             }
           >
             <button
@@ -733,7 +739,7 @@ export default function HomeNew() {
                   ? "opacity-0 pointer-events-none"
                   : "opacity-100")
               }
-              onClick={(e) => setListMove(false)}
+              onClick={() => setListMove(false)}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -746,20 +752,20 @@ export default function HomeNew() {
             </button>
             <div
               className={
-                "w-full h-11/12 transition-transform duration-700 ease-out flex flex-col md:flex-row md:h-auto md:overflow-auto tb:flex-row tb:h-auto tb:overflow-auto sm:flex-row sm:h-auto sm:overflow-auto " +
+                "w-full h-11/12 transition-transform duration-700 ease-out flex flex-col md:flex-row md:h-auto md:overflow-x-auto tb:flex-row tb:h-auto tb:overflow-auto sm:flex-row sm:h-aut sm:overflow-x-auto relative top-7 sm:top-2.5 sm:h-20 " +
                 (listMove && "list-move")
               }
             >
               {restaurants &&
-                restaurants?.map((store) => {
-                  function isNumberWithDecimal(num) {
+                restaurants?.map((store: any) => {
+                  function isNumberWithDecimal(num: number) {
                     return Number.isFinite(num) && num % 1 !== 0;
                   }
                   return (
                     <div
-                      className="w-full h-16 mb-2 flex justify-between items-center border-primary border-b md:border-b-0 md:border-r md:mr-2 md:pr-2
+                      className="w-full h-16 mb-2 flex justify-between items-center border-primary border-b md:border-b-0 md:border-r md:mb-0 md:mr-2 md:pr-2
                 tb:border-b-0 tb:border-r tb:mr-2 tb:pr-2 tb:mb-0
-                sm:border-b-0 sm:border-r sm:mr-2 sm:pr-2 sm:mb-0"
+                sm:border-b-0 sm:border-r sm:mr-2 sm:pr-2 sm:mb-0 sm:h-auto sm:self-end"
                     >
                       <div className="h-full flex flex-col justify-center w-36">
                         <h4 className="text-lg tracking-tighter font-bold truncate sm:text-base">
