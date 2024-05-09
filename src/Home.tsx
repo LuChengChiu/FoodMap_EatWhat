@@ -1,16 +1,16 @@
 import { Loader } from "@googlemaps/js-api-loader";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import Loading from "./Loading";
 import "./App.css";
-export default function Home() {
+export default function HomeNew() {
   let map: google.maps.Map, infoWindow: google.maps.InfoWindow;
   let service;
   const [userCurrentLocation, setUserCurrentLocation] = useState("");
   const [distance, setDistance] = useState(500);
-  const [price, setPrice] = useState([1, 2, 3, 4]);
+  const [price, setPrice] = useState([]);
   const [opening, setOpening] = useState(false);
-  const [storeType, setStoreType] = useState(["餐廳"]);
+  const [storeType, setStoreType] = useState(["restaurant"]);
   const [storeNum, setStoreNum] = useState(3);
   const [rate, setRate] = useState();
   const [rateQ, setRateQ] = useState(0);
@@ -108,22 +108,6 @@ export default function Home() {
       setLoading(false);
     }, 300);
   };
-  //   useEffect(() => {
-  //     setErrMsg("");
-  //     if (userCurrentLocation) {
-  //       searchPlace();
-  //       console.log("current distance", distance);
-  //     }
-  //   }, [
-  //     userCurrentLocation,
-  //     distance,
-  //     opening,
-  //     storeType,
-  //     price,
-  //     storeNum,
-  //     rate,
-  //     rateQ,
-  //   ]);
   const searchPlace = () => {
     if (oldCircle) {
       oldCircle.setMap(null);
@@ -147,10 +131,18 @@ export default function Home() {
       type: storeType,
     };
     service = new google.maps.places.PlacesService(theMap);
+    console.log(service, theMap);
     service.nearbySearch(request, cb);
   };
   const cb = (results, status) => {
+    console.log(
+      google.maps.places.PlacesServiceStatus,
+      status,
+      storeType,
+      typeof storeType
+    );
     if (status == google.maps.places.PlacesServiceStatus.OK) {
+      setRestaurants();
       const b4FilterResult: Array<object> = [];
       for (let i = 0; i < results.length; i++) {
         b4FilterResult.push(results[i]);
@@ -172,24 +164,33 @@ export default function Home() {
         setRestaurants(finalPick);
         createMarker(finalPick);
       } else {
+        console.log(filterList);
         if (filterList.length == 0) {
-          setErrMsg(`範圍內沒有符合條件的${storeType}`);
+          setErrMsg(`範圍內沒有符合條件的${storeType[0].toUpperCase()}`);
           return;
         }
         setErrMsg(
           `符合篩選條件的${storeType}數量少於${storeNum}間，只有${filterList.length}間`
         );
+        console.log(filterList);
+
         setRestaurants(filterList);
         createMarker(filterList);
       }
+    } else {
+      console.log("WTF WRONG", storeType);
+      setErrMsg(`範圍內沒有任何一間${storeType[0].toUpperCase()}`);
     }
   };
   const resultFilter = (list) => {
-    const filterPrice = list.filter((store) => {
-      if (price.includes(store.price_level)) {
-        return store;
-      }
-    });
+    let filterPrice = list;
+    if (price.length !== 0) {
+      filterPrice = list.filter((store) => {
+        if (price.includes(store.price_level)) {
+          return store;
+        }
+      });
+    }
     if (rate && rate >= 1) {
       const filterRate = filterPrice.filter((store) => {
         return store.rating >= rate;
@@ -253,20 +254,37 @@ export default function Home() {
         // setMsg(`🔍美食沙漠發現!`);
         return false;
       }
-      setMsg(`🔍美食沙漠發現!`);
     }
+    setMsg(`🔍美食沙漠發現!`);
   };
+  const unWorkBtn = (e) => {
+    e.preventDefault();
+  };
+  window.onload = function () {
+    document.addEventListener("click", (e) => {
+      const isDropdownBtn = e.target.matches("[data-dropdown-btn]");
+      if (!isDropdownBtn && e.target.closest("[data-dropdown]") != null) return;
+
+      let currentDropdown;
+      if (isDropdownBtn) {
+        currentDropdown = e.target.closest("[data-dropdown]");
+        currentDropdown.classList.toggle("active");
+      }
+      document
+        .querySelectorAll("[data-dropdown].active")
+        .forEach((dropdown) => {
+          if (dropdown === currentDropdown) return;
+          dropdown.classList.remove("active");
+        });
+    });
+  };
+
   return (
     <>
-      <section id="home" className="w-screen h-dvh flex relative font-TC">
-        {/* {loading && (
-          <div className="absolute z-50 bg-gray-400 opacity-70 w-full h-full flex justify-center items-center">
-            <Loading></Loading>
-          </div>
-        )} */}
+      <section id="home" className="font-TC w-dvw h-dvh relative">
         <div
           className={
-            "flex absolute top-28 left-1/2 -translate-x-1/2 z-30 bg-white rounded-lg px-3 py-2 transition-opacity duration-300 shadow-md shadow-gray-400 md:left-28 md:top-64 tb:left-28 tb:top-72 sm:left-20 sm:top-52 sm:text-sm " +
+            "flex absolute top-24 left-1/2 -translate-x-1/2 z-30 bg-white rounded-lg px-3 py-2 transition-opacity duration-300 shadow-md shadow-gray-400 md:left-28 md:top-64 tb:left-28 tb:top-72 sm:left-20 sm:top-52 sm:text-sm " +
             (msg ? "opacity-100" : "opacity-0")
           }
         >
@@ -274,7 +292,7 @@ export default function Home() {
         </div>
         <div
           className={
-            "flex absolute top-16 left-1/2 -translate-x-1/2 z-30 bg-white rounded-lg px-3 py-2 transition-opacity duration-300 shadow-md shadow-gray-400 md:left-28 md:top-72 tb:left-28 tb:top-72 sm:left-32 sm:top-52 sm:text-xs " +
+            "flex absolute top-24 left-1/2 -translate-x-1/2 z-30 bg-white rounded-lg px-3 py-2 transition-opacity duration-300 shadow-md shadow-gray-400 md:left-28 md:top-72 tb:left-28 tb:top-72 sm:left-32 sm:top-52 sm:text-xs " +
             (errMsg ? "opacity-100" : "opacity-0")
           }
         >
@@ -292,18 +310,21 @@ export default function Home() {
           </svg>
           {errMsg}
         </div>
-        <div className="bg-white text-text absolute top-20 left-10 z-10 rounded-3xl overflow-hidden flex flex-col items-center shadow-2xl shadow-gray-500 md:top-14 tb:left-1.5 tb:top-14 sm:left-0 sm:top-0 sm:h-auto sm:w-dvw sm:rounded-none sm:shadow-lg">
-          <div className="h-16 flex items-center pl-5 text-accent text-left w-full md:h-10 md:pt-2 tb:h-9 sm:h-8 sm:pt-3 sm:mb-2">
-            <span className="font-Poetsen text-4xl sm:text-2xl">Eat What?</span>
+        <div className="bg-background text-text flex w-auto min-w-max rounded-full items-center px-5 py-2 shadow-lg shadow-gray-700/40 absolute top-3 left-1/2 -translate-x-1/2 z-50 lg:min-w-0 lg:w-4/6 lg:left-auto lg:-right-1/4 lg:flex-col lg:items-start md:min-w-0 md:w-4/6 md:left-auto md:right-14 md:flex-col md:-translate-x-0 md:rounded-3xl md:px-2 md:py-1 tb:flex-col tb:top-14 tb:rounded-xl tb:px-2 tb:w-11/12 sm:flex-col sm:top-14 sm:rounded-xl sm:px-2 sm:w-11/12 sm:left-1/2 sm:-translate-x-1/2 sm:min-w-0 ">
+          <div className="flex w-52 justify-between items-center mr-5 lg:px-3 lg:w-full md:ml-4 md:w-full tb:pl-4 tb:w-full sm:pl-4 sm:w-full ">
+            <span className="font-Poetsen text-3xl text-accent lg:text-2xl tb:text-xl sm:text-xl">
+              Eat What?
+            </span>
             <NavLink
-              to="about"
-              className="absolute right-12 top-5 w-4 text-text opacity-60 transition-transform transition-opacity duration-200 hover:scale-110 hover:opacity-100 md:top-2 md:right-10 sm:top-2 sm:right-8"
+              to="/about"
+              className="opacity-60 transition-all duration-200 hover:scale-110 hover:opacity-100 sm:mr-8"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="32"
                 height="32"
                 viewBox="0 0 24 24"
+                className="tb:w-7 sm:w-6"
               >
                 <path
                   fill="currentColor"
@@ -312,217 +333,214 @@ export default function Home() {
               </svg>
             </NavLink>
           </div>
-          <form className="text-xl flex flex-col items-start px-5 md:flex-row tb:flex-row sm:flex-row tb:text-base sm:text-sm tb:px-1 sm:px-2 sm:w-full">
-            <div className="flex items-center justify-around my-1.5 md:flex-col tb:flex-col sm:flex-col">
-              <span className="font-bold mr-4 tracking-tighter md:mr-0 md:mb-2 tb:mr-0 tb:mb-2 sm:mr-0 sm:mb-2 sm:write-updown sm:mt-1">
-                營業中
-              </span>
-              <div>
+          <div className="flex items-center relative lg:w-full md:w-full tb:w-full sm:w-full sm:overflow-hidden sm:overflow-x-auto">
+            <form className="flex items-center lg:justify-around lg:w-full md:w-full md:justify-around tb:w-auto  sm:overflow-y-hidden relative sm:min-w-max">
+              <div className=" mx-0.5 px-2 py-1.5 rounded-xl hover:bg-primary hover:text-background transition-all ease-in-out duration-300 md:px-1 md:mx-0 tb:px-1 tb:mx-0 tb:py-0.5 sm:px-1 sm:mx-0.5 sm:py-1">
                 <input
+                  className="inp-cbx"
+                  id="opening"
                   type="checkbox"
-                  name="open"
-                  id="open"
-                  value="true"
+                  style={{ display: "none" }}
                   onClick={() => setOpening(!opening)}
-                  className="toggle-check-input"
                 />
-                <label
-                  htmlFor="open"
-                  className="toggle-check tb:mr-2 sm:before:w-7 sm:before:h-3"
-                >
-                  <span></span>
-                </label>
-              </div>{" "}
-            </div>
-            <div className="flex items-center justify-around my-1.5 md:flex-col md:mx-1.5  tb:flex-col tb:mx-1.5 sm:flex-col sm:mx-1.5 sm:ml-0.5">
-              <span className="font-bold mr-4 md:mr-0 tb:mr-0 sm:mr-0">
-                距離
-              </span>
-              <div className="input-frame w-52 h-8 justify-center font-Poetsen text-base md:flex-col md:w-auto md:h-auto md:rounded-lg md:after:rounded-lg tb:flex-col tb:w-auto tb:h-auto tb:rounded-lg tb:after:rounded-lg tb:text-sm sm:flex-col sm:w-auto sm:h-auto sm:rounded-lg sm:after:rounded-lg sm:text-xs">
-                <input
-                  type="radio"
-                  name="distance"
-                  id="distance300"
-                  value="300"
-                  onClick={(e) => setDistance(parseInt(e.target.value))}
-                  className="toggle-input"
-                />
-                <label
-                  htmlFor="distance300"
-                  className="toggle-label px-4 tb:px-1.5 sm:px-1"
-                >
-                  300m {/* 300 走路5分大約 */}
-                </label>
-                <input
-                  type="radio"
-                  name="distance"
-                  id="distance500"
-                  value="500"
-                  defaultChecked={true}
-                  onClick={(e) => setDistance(parseInt(e.target.value))}
-                  className="toggle-input"
-                />
-                <label
-                  htmlFor="distance500"
-                  className="toggle-label px-3 tb:px-1.5 sm:px-1"
-                >
-                  500m {/* 走路10分大約 */}
-                </label>
-                <input
-                  type="radio"
-                  name="distance"
-                  id="distance1000"
-                  value="1000"
-                  onClick={(e) => setDistance(parseInt(e.target.value))}
-                  className="toggle-input"
-                />
-                <label
-                  htmlFor="distance1000"
-                  className="toggle-label px-4 tb:px-1.5 sm:px-1"
-                >
-                  1km {/* 走路20分大約 */}
+                <label className="cbx" htmlFor="opening">
+                  <span>
+                    <svg width="12px" height="10px" viewBox="0 0 12 10">
+                      <polyline points="1.5 6 4.5 9 10.5 1"></polyline>
+                    </svg>
+                  </span>
+                  <span className="font-bold text-lg md:text-base tb:text-sm sm:text-sm sm:mb-0.5">
+                    營業中
+                  </span>
                 </label>
               </div>
-            </div>
-            <div className="flex items-center justify-around my-1.5 md:flex-col md:mr-1.5 tb:flex-col tb:mr-1.5 sm:flex-col sm:mr-1.5">
-              <span className="font-bold mr-4 md:mr-0 tb:mr-0 sm:mr-0">
-                價格
-              </span>
               <div
-                className="input-frame w-52 h-8 justify-center font-Poetsen text-base md:flex-col md:w-auto md:h-auto md:rounded-lg md:after:rounded-lg
-              tb:flex-col tb:w-auto tb:h-auto tb:rounded-lg tb:after:rounded-lg tb:text-base sm:text-xs
-              sm:flex-col sm:w-auto sm:h-auto sm:rounded-lg sm:after:rounded-lg"
+                className="dropdown relative mx-0.5 px-2 py-1.5 rounded-xl hover:bg-primary hover:text-background transition-all ease-in-out duration-300 md:px-1 md:mx-0tb:px-1 tb:mx-0 tb:py-0.5 sm:px-1 sm:mx-0.5 sm:py-1"
+                data-dropdown
               >
-                <input
-                  type="checkbox"
-                  name="priceRange"
-                  id="price1"
-                  value="1"
-                  defaultChecked={true}
-                  onChange={priceHandler}
-                  className="toggle-input"
-                />
-                <label
-                  htmlFor="price1"
-                  className="toggle-label w-14 tb:w-12 tb:py-0.5 sm:w-10"
+                <button
+                  onClick={unWorkBtn}
+                  className="link font-bold text-lg md:text-base tb:text-sm sm:text-sm"
+                  data-dropdown-btn
                 >
-                  $
-                </label>{" "}
-                <input
-                  type="checkbox"
-                  name="priceRange"
-                  id="price2"
-                  value="2"
-                  defaultChecked={true}
-                  onChange={priceHandler}
-                  className="toggle-input"
-                />
-                <label
-                  htmlFor="price2"
-                  className="toggle-label w-14 tb:w-12 tb:py-0.5 sm:w-10"
-                >
-                  $$
-                </label>
-                <input
-                  type="checkbox"
-                  name="priceRange"
-                  id="price3"
-                  value="3"
-                  defaultChecked={true}
-                  onChange={priceHandler}
-                  className="toggle-input"
-                />
-                <label
-                  htmlFor="price3"
-                  className="toggle-label w-14 tb:w-12 tb:py-0.5 sm:w-10"
-                >
-                  $$$
-                </label>
-                <input
-                  type="checkbox"
-                  name="priceRange"
-                  id="price4"
-                  value="4"
-                  defaultChecked={true}
-                  onChange={priceHandler}
-                  className="toggle-input"
-                />{" "}
-                <label
-                  htmlFor="price4"
-                  className="toggle-label w-14 tb:w-12 tb:py-0.5 sm:w-10"
-                >
-                  $$$$
-                </label>
+                  距離
+                </button>
+                <div className="pointer-events-none dropdown-menu input-frame absolute -left-2.5 top-3 translate-y-5 bg-background opacity-0 transition-all duration-200 z-10 text-lg font-Poetsen shadow-md shadow-gray-900/20 md:text-sm md:-left-3 tb:text-sm sm:text-xs sm:fixed sm:top-2/3 sm:left-1/4">
+                  <input
+                    type="radio"
+                    name="distance"
+                    id="distance300"
+                    value={300}
+                    className="toggle-input"
+                  />
+                  <label
+                    htmlFor="distance300"
+                    className="toggle-label px-3 py-0.5"
+                  >
+                    300m
+                  </label>
+                  <input
+                    type="radio"
+                    name="distance"
+                    id="distance500"
+                    value={500}
+                    className="toggle-input"
+                  />
+                  <label
+                    htmlFor="distance500"
+                    className="toggle-label px-3 py-0.5"
+                  >
+                    500m
+                  </label>
+                  <input
+                    type="radio"
+                    name="distance"
+                    id="distance1000"
+                    value={1000}
+                    className="toggle-input"
+                  />{" "}
+                  <label
+                    htmlFor="distance1000"
+                    className="toggle-label px-3 py-0.5"
+                  >
+                    1 km
+                  </label>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center justify-around my-1.5 md:flex-col md:mr-1.5 tb:flex-col tb:mr-1.5 sm:flex-col sm:mr-1.5">
-              <span className="font-bold mr-4 md:mr-0 tb:mr-0 sm:mr-0">
-                類型
-              </span>
               <div
-                className="input-frame w-52 justify-center h-8 text-base md:flex-col md:w-auto md:h-auto md:rounded-lg md:after:rounded-lg tb:flex-col tb:w-16 tb:text-sm tb:h-auto tb:rounded-lg tb:after:rounded-lg
-              sm:flex-col sm:w-auto sm:h-auto sm:rounded-lg sm:after:rounded-lg sm:text-xs"
+                className="dropdown relative mx-1 px-2 py-1.5 rounded-xl hover:bg-primary hover:text-background transition-all ease-in-out duration-300 md:px-1 md:mx-0tb:px-1 tb:mx-0 tb:py-0.5 sm:px-1 sm:mx-0.5 sm:py-1"
+                data-dropdown
               >
-                <input
-                  type="radio"
-                  name="storeType"
-                  id="restaurant"
-                  value="restaurant"
-                  defaultChecked={true}
-                  onChange={(e) => {
-                    setStoreType([e.target.value]);
-                  }}
-                  className="toggle-input"
-                />
-                <label
-                  htmlFor="restaurant"
-                  className="toggle-label px-4 tb:px-1.5 sm:px-1.5"
+                <button
+                  onClick={unWorkBtn}
+                  className="link font-bold text-lg md:text-base tb:text-sm sm:text-sm"
+                  data-dropdown-btn
                 >
-                  餐廳
-                </label>
-                <input
-                  type="radio"
-                  name="storeType"
-                  id="cafe"
-                  value="cafe"
-                  onChange={(e) => {
-                    setStoreType([e.target.value]);
-                  }}
-                  className="toggle-input"
-                />{" "}
-                <label
-                  htmlFor="cafe"
-                  className="toggle-label px-3 tb:px-1.5 sm:px-1.5"
-                >
-                  咖啡廳
-                </label>
-                <input
-                  type="radio"
-                  name="storeType"
-                  id="bar"
-                  value="bar"
-                  onChange={(e) => {
-                    setStoreType([e.target.value]);
-                  }}
-                  className="toggle-input"
-                />
-                <label
-                  htmlFor="bar"
-                  className="toggle-label px-4 tb:px-1.5 sm:px-1.5"
-                >
-                  酒吧
-                </label>
+                  價格
+                </button>
+                <div className="pointer-events-none dropdown-menu input-frame absolute -left-2.5 top-3 translate-y-5 bg-background opacity-0 transition-all duration-200 z-10 text-lg font-Poetsen shadow-md shadow-gray-900/20 md:text-sm tb:text-sm sm:text-xs sm:fixed sm:top-2/3 sm:left-32">
+                  <input
+                    type="checkbox"
+                    name="priceRange"
+                    id="price1"
+                    value="1"
+                    onChange={priceHandler}
+                    className="toggle-input"
+                  />
+                  <label htmlFor="price1" className="toggle-label px-3 py-0.5">
+                    $
+                  </label>{" "}
+                  <input
+                    type="checkbox"
+                    name="priceRange"
+                    id="price2"
+                    value="2"
+                    onChange={priceHandler}
+                    className="toggle-input"
+                  />
+                  <label htmlFor="price2" className="toggle-label px-3 py-0.5">
+                    $$
+                  </label>
+                  <input
+                    type="checkbox"
+                    name="priceRange"
+                    id="price3"
+                    value="3"
+                    onChange={priceHandler}
+                    className="toggle-input"
+                  />
+                  <label htmlFor="price3" className="toggle-label px-3 py-0.5">
+                    $$$
+                  </label>
+                  <input
+                    type="checkbox"
+                    name="priceRange"
+                    id="price4"
+                    value="4"
+                    onChange={priceHandler}
+                    className="toggle-input"
+                  />{" "}
+                  <label htmlFor="price4" className="toggle-label px-3 py-0.5">
+                    $$$$
+                  </label>
+                </div>
               </div>
-            </div>
-            <div className="md:ml-3 tb:ml-1 sm:ml-1">
-              <div className="flex items-center my-1.5 relative">
-                <label
-                  htmlFor="num"
-                  className="font-bold mr-4 tracking-tighter tb:mr-2 sm:mr-1"
+              <div
+                className="dropdown relative mx-1 px-2 py-1.5 rounded-xl hover:bg-primary hover:text-background transition-all ease-in-out duration-300 md:px-1 md:mx-0tb:px-1 tb:mx-0 tb:py-0.5 sm:px-1 sm:mx-0.5 sm:py-1"
+                data-dropdown
+              >
+                <button
+                  onClick={unWorkBtn}
+                  className="link font-bold text-lg md:text-base tb:text-sm sm:text-sm"
+                  data-dropdown-btn
                 >
-                  店家數
-                </label>
-                <div className="relative h-5 w-40 flex items-center tb:w-32 sm:w-24">
+                  店面類型
+                </button>
+                <div className="pointer-events-none dropdown-menu input-frame absolute -left-0 top-3 translate-y-5 bg-background opacity-0 transition-all duration-200 z-10 text-lg shadow-md shadow-gray-900/20 md:text-sm md:left-1  tb:text-sm sm:text-xs tb:left-1 sm:fixed sm:top-2/3 sm:right-1/4 sm:left-auto">
+                  {" "}
+                  <input
+                    type="radio"
+                    name="storeType"
+                    id="restaurant"
+                    value="restaurant"
+                    defaultChecked={true}
+                    onChange={(e) => {
+                      setStoreType([e.target.value]);
+                    }}
+                    className="toggle-input"
+                  />
+                  <label
+                    htmlFor="restaurant"
+                    className="toggle-label px-3 py-0.5 tracking-wider md:px-2 tb:px-2"
+                  >
+                    餐廳
+                  </label>
+                  <input
+                    type="radio"
+                    name="storeType"
+                    id="cafe"
+                    value="cafe"
+                    onChange={(e) => {
+                      setStoreType([e.target.value]);
+                    }}
+                    className="toggle-input"
+                  />{" "}
+                  <label
+                    htmlFor="cafe"
+                    className="toggle-label px-3 py-0.5 tracking-wider md:px-2 tb:px-2 "
+                  >
+                    咖啡廳
+                  </label>
+                  <input
+                    type="radio"
+                    name="storeType"
+                    id="bar"
+                    value="bar"
+                    onChange={(e) => {
+                      setStoreType([e.target.value]);
+                    }}
+                    className="toggle-input"
+                  />
+                  <label
+                    htmlFor="bar"
+                    className="toggle-label px-3 py-0.5 tracking-wider md:px-2 tb:px-2"
+                  >
+                    酒吧
+                  </label>
+                </div>
+              </div>
+              <div
+                className="dropdown relative mx-1 px-2 py-1.5 rounded-xl hover:bg-primary hover:text-background transition-all ease-in-out duration-300 md:px-1 md:mx-0 tb:px-1 tb:mx-0 tb:py-0.5 sm:px-1 sm:mx-0.5 sm:py-1"
+                data-dropdown
+              >
+                <button
+                  onClick={unWorkBtn}
+                  className="link font-bold text-lg md:text-base tb:text-sm sm:text-sm"
+                  data-dropdown-btn
+                >
+                  店家數量
+                </button>
+                <div className="pointer-events-none dropdown-menu input-frame absolute -left-1/2 top-5 translate-y-5 bg-background px-4 py-3 opacity-0 transition-all duration-200 z-10 flex flex-row items-center shadow-md shadow-gray-900/20 md:px-2 tb:px-1.5 tb:py-1.5 tb:top-3 sm:fixed sm:top-2/3 sm:left-1/3">
                   <input
                     type="range"
                     id="num"
@@ -534,199 +552,213 @@ export default function Home() {
                     onChange={(e) => {
                       setStoreNum(e.target.value);
                     }}
-                  />
-                </div>
-                <span className="font-Poetsen relative right-3 tb:-right-1 sm:-right-1">
-                  {storeNum}
-                </span>
-              </div>
-              <div className="">
-                <div className="flex flex-col my-1.5 md:flex-row md:mt-2.5 tb:flex-row tb:mt-1 sm:flex-row sm:mt-1">
-                  <span className="font-bold mb-1 md:mr-1 md:mb-0 tb:mr-1.5 tb:mb-0 sm:mr-0.5 sm:mb-0 sm:mt-0.5">
-                    評分
+                    className="tb:w-28 sm:scale-90 sm:max-h-5 sm:w-24"
+                  />{" "}
+                  <span className="font-Poetsen ml-2 w-3 text-text">
+                    {storeNum}
                   </span>
-                  <div className="font-Poetsen input-frame w-72 h-7 justify-center text-base md:w-52 tb:text-sm tb:w-44 sm:w-32 sm:text-xs">
-                    <input
-                      type="radio"
-                      name="rate"
-                      id="rate-25"
-                      value={2.5}
-                      onChange={(e) => {
-                        setRate(e.target.value);
-                      }}
-                      className="toggle-input"
-                    />
-                    <label
-                      htmlFor="rate-25"
-                      className="toggle-label w-16 tb:w-10 sm:w-6"
-                    >
-                      2.5<span className="sm:hidden">+</span>
-                    </label>
-                    <input
-                      type="radio"
-                      name="rate"
-                      id="rate-3"
-                      value={3}
-                      onChange={(e) => {
-                        setRate(e.target.value);
-                      }}
-                      className="toggle-input"
-                    />{" "}
-                    <label
-                      htmlFor="rate-3"
-                      className="toggle-label w-16 tb:w-10 sm:w-6"
-                    >
-                      3.0<span className="sm:hidden">+</span>
-                    </label>
-                    <input
-                      type="radio"
-                      name="rate"
-                      id="rate-35"
-                      value={3.5}
-                      onChange={(e) => {
-                        setRate(e.target.value);
-                      }}
-                      className="toggle-input"
-                    />{" "}
-                    <label
-                      htmlFor="rate-35"
-                      className="toggle-label w-16 tb:w-10 sm:w-6"
-                    >
-                      3.5<span className="sm:hidden">+</span>
-                    </label>
-                    <input
-                      type="radio"
-                      name="rate"
-                      id="rate-4"
-                      value={4}
-                      onChange={(e) => {
-                        setRate(e.target.value);
-                      }}
-                      className="toggle-input"
-                    />{" "}
-                    <label
-                      htmlFor="rate-4"
-                      className="toggle-label w-16 tb:w-10 sm:w-6"
-                    >
-                      4.0<span className="sm:hidden">+</span>
-                    </label>
-                    <input
-                      type="radio"
-                      name="rate"
-                      id="rate-45"
-                      value={4.5}
-                      onChange={(e) => {
-                        setRate(e.target.value);
-                      }}
-                      className="toggle-input"
-                    />{" "}
-                    <label
-                      htmlFor="rate-45"
-                      className="toggle-label w-16 tb:w-10 sm:w-6"
-                    >
-                      4.5<span className="sm:hidden">+</span>
-                    </label>
-                  </div>
                 </div>
-                <div className="flex items-center my-3 relative">
+              </div>
+              <div
+                className="dropdown relative mx-1 px-2 py-1.5 rounded-xl hover:bg-primary hover:text-background transition-all ease-in-out duration-300 md:px-1 md:mx-0tb:px-1 tb:mx-0 tb:py-0.5 sm:px-1 sm:mx-0.5 sm:py-1 "
+                data-dropdown
+              >
+                <button
+                  onClick={unWorkBtn}
+                  className="link font-bold text-lg md:text-base tb:text-sm sm:text-sm"
+                  data-dropdown-btn
+                >
+                  評分
+                </button>
+                <div className="pointer-events-none dropdown-menu input-frame absolute -left-0 top-3 translate-y-5 bg-background opacity-0 transition-all duration-200 z-10 text-lg font-Poetsen  shadow-md shadow-gray-900/20 md:text-sm md:-left-3 tb:text-sm sm:text-xs sm:fixed sm:top-2/3 sm:left-48">
+                  {" "}
+                  <input
+                    type="radio"
+                    name="rate"
+                    id="rate-25"
+                    value={2.5}
+                    onChange={(e) => {
+                      setRate(e.target.value);
+                    }}
+                    className="toggle-input"
+                  />
                   <label
-                    htmlFor="rate-num"
-                    className="font-bold tracking-tighter mr-2 sm:mb-1"
+                    htmlFor="rate-25"
+                    className="toggle-label px-3 py-0.5 tracking-wider tb:px-1.5 sm:px-1.5"
                   >
-                    評論數
+                    2.5<span className="sm:hidden">+</span>
                   </label>
-                  <div className="flex items-center">
-                    <input
-                      type="range"
-                      name="rate-num"
-                      id="rate-num"
-                      min={0}
-                      max={1000}
-                      step={100}
-                      onChange={(e) => setRateQ(parseInt(e.target.value))}
-                      className="w-40 tb:w-24 sm:w-24"
-                    />
-                  </div>
-                  <span className="font-Poetsen relative left-2.5 sm:left-1 sm:absolute sm:-bottom-3 ">
+                  <input
+                    type="radio"
+                    name="rate"
+                    id="rate-3"
+                    value={3}
+                    onChange={(e) => {
+                      setRate(e.target.value);
+                    }}
+                    className="toggle-input"
+                  />{" "}
+                  <label
+                    htmlFor="rate-3"
+                    className="toggle-label px-3 py-0.5 tracking-wider tb:px-1.5 sm:px-1.5"
+                  >
+                    3.0<span className="sm:hidden">+</span>
+                  </label>
+                  <input
+                    type="radio"
+                    name="rate"
+                    id="rate-35"
+                    value={3.5}
+                    onChange={(e) => {
+                      setRate(e.target.value);
+                    }}
+                    className="toggle-input"
+                  />{" "}
+                  <label
+                    htmlFor="rate-35"
+                    className="toggle-label px-3 py-0.5 tracking-wider tb:px-1.5 sm:px-1.5"
+                  >
+                    3.5<span className="sm:hidden">+</span>
+                  </label>
+                  <input
+                    type="radio"
+                    name="rate"
+                    id="rate-4"
+                    value={4}
+                    onChange={(e) => {
+                      setRate(e.target.value);
+                    }}
+                    className="toggle-input"
+                  />{" "}
+                  <label
+                    htmlFor="rate-4"
+                    className="toggle-label px-3 py-0.5 tracking-wider tb:px-1.5 sm:px-1.5"
+                  >
+                    4.0<span className="sm:hidden">+</span>
+                  </label>
+                  <input
+                    type="radio"
+                    name="rate"
+                    id="rate-45"
+                    value={4.5}
+                    onChange={(e) => {
+                      setRate(e.target.value);
+                    }}
+                    className="toggle-input"
+                  />{" "}
+                  <label
+                    htmlFor="rate-45"
+                    className="toggle-label px-3 py-0.5 tracking-wider tb:px-1.5 sm:px-1.5"
+                  >
+                    4.5<span className="sm:hidden">+</span>
+                  </label>
+                </div>
+              </div>
+              <div
+                className="dropdown relative mx-1 px-2 py-1.5 rounded-xl hover:bg-primary hover:text-background transition-all ease-in-out duration-300 md:px-1 md:mx-0tb:px-1 tb:mx-0 tb:py-0.5 sm:px-1 sm:mx-0.5 sm:py-1"
+                data-dropdown
+              >
+                <button
+                  onClick={unWorkBtn}
+                  className="link font-bold text-lg md:text-base tb:text-sm sm:text-sm"
+                  data-dropdown-btn
+                >
+                  評論數量
+                </button>
+                <div className="pointer-events-none dropdown-menu input-frame absolute -left-10 top-5 translate-y-5 bg-background px-4 py-3 opacity-0 transition-all duration-200 z-10 flex flex-row items-center shadow-md shadow-gray-900/20 md:left-auto md:right-0 tb:px-1.5 tb:py-1.5 tb:top-3 sm:fixed sm:left-auto sm:right-0 sm:top-2/3">
+                  {" "}
+                  <input
+                    type="range"
+                    name="rate-num"
+                    id="rate-num"
+                    min={0}
+                    max={1000}
+                    step={100}
+                    onChange={(e) => setRateQ(parseInt(e.target.value))}
+                    className="tb:w-28"
+                  />
+                  <span className="font-Poetsen ml-2 w-10 text-text tb:text-sm tb:w-9 tb:ml-1">
                     {rateQ}+
                   </span>
                 </div>
               </div>
-            </div>{" "}
-          </form>{" "}
-          <button
-            onClick={searchHandler}
-            className="px-2 py-1 mb-4 mt-1 relative rounded-lg bg-primary text-background transition-all duration-300 hover:bg-accent hover:scale-110 md:absolute md:left-5 md:bottom-3 tb:absolute tb:left-2 tb:bottom-3 tb:py-0.5 sm:absolute sm:left-3 sm:bottom-1 sm:py-0 sm:px-1 sm:m-0"
-          >
-            {/* 找 {storeType} */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              className="tb:w-6 sm:w-5 sm:h-6"
+            </form>
+            <button
+              onClick={searchHandler}
+              className="bg-blue-400 text-white p-1 rounded-lg transition-all hover:scale-125 hover:bg-accent duration-200 ml-1 sm:fixed sm:top-3 sm:right-3 sm:py-0"
             >
-              <path
-                fill="currentColor"
-                d="m19.6 21l-6.3-6.3q-.75.6-1.725.95T9.5 16q-2.725 0-4.612-1.888T3 9.5t1.888-4.612T9.5 3t4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l6.3 6.3zM9.5 14q1.875 0 3.188-1.312T14 9.5t-1.312-3.187T9.5 5T6.313 6.313T5 9.5t1.313 3.188T9.5 14"
-              />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="25"
+                height="25"
+                viewBox="0 0 24 24"
+                className="sm:w-5"
+              >
+                <path
+                  fill="currentColor"
+                  d="m19.6 21l-6.3-6.3q-.75.6-1.725.95T9.5 16q-2.725 0-4.612-1.888T3 9.5t1.888-4.612T9.5 3t4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l6.3 6.3zM9.5 14q1.875 0 3.188-1.312T14 9.5t-1.312-3.187T9.5 5T6.313 6.313T5 9.5t1.313 3.188T9.5 14"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
-        {restaurants?.length > 0 && (
+        <div
+          className={
+            "absolute bg-white left-10 bottom-20 z-10 rounded-3xl px-3.5 py-3 w-80 h-72  shadow-2xl shadow-gray-500 overflow-hidden md:bottom-2 md:left-0 md:w-11/12 md:h-28 md:ml-2 tb:bottom-2 tb:left-0 tb:w-11/12 tb:h-28 tb:ml-2 sm:bottom-2 sm:left-0 sm:w-10/12 sm:h-24 sm:ml-2 opacity-0 transition-opacity duration-200 " +
+            (storeNum < 2
+              ? "h-32 bottom-52"
+              : storeNum < 3 && "h-48 bottom-36") +
+            " " +
+            (restaurants?.length > 0 && "opacity-100")
+          }
+        >
+          <span className="text-lg font-bold text-center block bg-white md:text-left tb:text-left sm:text-left tb:text-base sm:text-base">
+            為你選中的{" "}
+            <span className="font-Poetsen">{storeType[0].toUpperCase()}</span>
+          </span>
           <div
             className={
-              "absolute bg-white left-10 bottom-20 z-10 rounded-3xl px-3.5 py-3 w-80 h-72  shadow-2xl shadow-gray-500 overflow-hidden md:bottom-2 md:left-0 md:w-11/12 md:h-28 md:ml-2 tb:bottom-2 tb:left-0 tb:w-11/12 tb:h-28 tb:ml-2 sm:bottom-2 sm:left-0 sm:w-10/12 sm:h-24 sm:ml-2 " +
-              (storeNum < 2
-                ? "h-32 bottom-52"
-                : storeNum < 3 && "h-48 bottom-36")
+              "w-full h-60 overflow-hidden md:h-auto tb:h-auto sm:h-auto"
             }
           >
-            <span className="text-lg font-bold text-center block bg-white md:text-left tb:text-left sm:text-left tb:text-base sm:text-base">
-              為你選中的{storeType}
-            </span>
+            <button
+              className={
+                "flex justify-center items-center bg-white absolute top-10 left-1/2 -translate-x-1/2 w-full z-20 h-6 transition-opacity duration-300 ease-in hover:text-accent md:hidden tb:hidden sm:hidden " +
+                (storeNum <= 3
+                  ? "opacity-0 pointer-events-none"
+                  : !listMove
+                  ? "opacity-0 pointer-events-none"
+                  : "opacity-100")
+              }
+              onClick={(e) => setListMove(false)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+              >
+                <path fill="currentColor" d="m7 14l5-5l5 5z" />
+              </svg>
+            </button>
             <div
               className={
-                "w-full h-60 overflow-hidden md:h-auto tb:h-auto sm:h-auto"
+                "w-full h-11/12 transition-transform duration-700 ease-out flex flex-col md:flex-row md:h-auto md:overflow-auto tb:flex-row tb:h-auto tb:overflow-auto sm:flex-row sm:h-auto sm:overflow-auto " +
+                (listMove && "list-move")
               }
             >
-              <button
-                className={
-                  "flex justify-center items-center bg-white absolute top-10 left-1/2 -translate-x-1/2 w-full z-20 h-6 transition-opacity duration-300 ease-in hover:text-accent md:hidden tb:hidden sm:hidden " +
-                  (storeNum <= 3
-                    ? "opacity-0 pointer-events-none"
-                    : !listMove
-                    ? "opacity-0 pointer-events-none"
-                    : "opacity-100")
-                }
-                onClick={(e) => setListMove(false)}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                >
-                  <path fill="currentColor" d="m7 14l5-5l5 5z" />
-                </svg>
-              </button>
-              <div
-                className={
-                  "w-full h-11/12 transition-transform duration-700 ease-out flex flex-col md:flex-row md:h-auto md:overflow-auto tb:flex-row tb:h-auto tb:overflow-auto sm:flex-row sm:h-auto sm:overflow-auto " +
-                  (listMove && "list-move")
-                }
-              >
-                {restaurants?.map((store) => {
+              {restaurants &&
+                restaurants?.map((store) => {
                   function isNumberWithDecimal(num) {
                     return Number.isFinite(num) && num % 1 !== 0;
                   }
                   return (
                     <div
                       className="w-full h-16 mb-2 flex justify-between items-center border-primary border-b md:border-b-0 md:border-r md:mr-2 md:pr-2
-                    tb:border-b-0 tb:border-r tb:mr-2 tb:pr-2 tb:mb-0
-                    sm:border-b-0 sm:border-r sm:mr-2 sm:pr-2 sm:mb-0"
+                tb:border-b-0 tb:border-r tb:mr-2 tb:pr-2 tb:mb-0
+                sm:border-b-0 sm:border-r sm:mr-2 sm:pr-2 sm:mb-0"
                     >
-                      <div className="h-full flex flex-col justify-center w-40">
+                      <div className="h-full flex flex-col justify-center w-36">
                         <h4 className="text-lg tracking-tighter font-bold truncate sm:text-base">
                           {store.name}
                         </h4>{" "}
@@ -782,37 +814,33 @@ export default function Home() {
                     </div>
                   );
                 })}
-              </div>
             </div>
-            <button
-              className={
-                " bg-white absolute bottom-0 left-1/2 flex justify-center -translate-x-1/2 w-full transition-opacity duration-300 ease-in rounded-3xl hover:text-accent md:hidden tb:hidden sm:hidden " +
-                (storeNum <= 3
-                  ? "opacity-0 pointer-events-none"
-                  : listMove
-                  ? "opacity-0 pointer-events-none"
-                  : "opacity-100")
-              }
-              onClick={(e) => setListMove(true)}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  fill="currentColor"
-                  d="M11.475 14.475L7.85 10.85q-.075-.075-.112-.162T7.7 10.5q0-.2.138-.35T8.2 10h7.6q.225 0 .363.15t.137.35q0 .05-.15.35l-3.625 3.625q-.125.125-.25.175T12 14.7t-.275-.05t-.25-.175"
-                />
-              </svg>
-            </button>
           </div>
-        )}
-        <div
-          id="map"
-          className="w-full h-full map-frame sm:h-3/4 relative top-36"
-        ></div>
+          <button
+            className={
+              " bg-white absolute bottom-0 left-1/2 flex justify-center -translate-x-1/2 w-full transition-opacity duration-300 ease-in rounded-3xl hover:text-accent md:hidden tb:hidden sm:hidden " +
+              (storeNum <= 3
+                ? "opacity-0 pointer-events-none"
+                : listMove
+                ? "opacity-0 pointer-events-none"
+                : "opacity-100")
+            }
+            onClick={(e) => setListMove(true)}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                d="M11.475 14.475L7.85 10.85q-.075-.075-.112-.162T7.7 10.5q0-.2.138-.35T8.2 10h7.6q.225 0 .363.15t.137.35q0 .05-.15.35l-3.625 3.625q-.125.125-.25.175T12 14.7t-.275-.05t-.25-.175"
+              />
+            </svg>
+          </button>
+        </div>
+        <div id="map" className="w-full h-full map-frame relative"></div>
       </section>
     </>
   );
