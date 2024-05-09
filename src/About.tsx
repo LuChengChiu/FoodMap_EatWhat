@@ -67,7 +67,10 @@ export default function About() {
                 </div>
               </div>
             </div>
-            <NavLink className="absolute bottom-40 right-60 font-Poetsen transition-transform duration-300 hover:scale-125 hover:bg-accent rounded-xl  bg-primary text-white text-3xl px-5 py-2 lg:right-32 lg:bottom-60 md:bottom-20 md:right-52 tb:bottom-6 tb:right-40 tb:text-xl tb:hover:scale-110 sm:text-lg sm:right-20 sm:bottom-5 sm:hover:scale-110">
+            <NavLink
+              to="/"
+              className="absolute bottom-40 right-60 font-Poetsen transition-transform duration-300 hover:scale-125 hover:bg-accent rounded-xl  bg-primary text-white text-3xl px-5 py-2 lg:right-32 lg:bottom-60 md:bottom-20 md:right-52 tb:bottom-6 tb:right-40 tb:text-xl tb:hover:scale-110 sm:text-lg sm:right-20 sm:bottom-5 sm:hover:scale-110"
+            >
               Go to Map !
             </NavLink>
           </div>
