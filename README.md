@@ -6,6 +6,6 @@
 
 ## #Built with
 
--React.js
--Tailwind CSS
--VsCode
+- React.js
+- Tailwind CSS
+- VsCode
