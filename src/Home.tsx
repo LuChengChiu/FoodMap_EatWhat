@@ -1,7 +1,6 @@
 import { Loader } from "@googlemaps/js-api-loader";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import Loading from "./Loading";
 import "./App.css";
 export default function HomeNew() {
   let map: google.maps.Map, infoWindow: google.maps.InfoWindow;

@@ -1,30 +1,11 @@
-# React + TypeScript + Vite
+# 食物地圖 - Eat What?
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+本網站串接 Google Maps JavaScript API 與使用 Places Library。
 
-Currently, two official plugins are available:
+相信許多人每天都會面臨不知道吃什麼的煩惱，此網站可以解決使用者的煩惱，透過串接 Google Maps JS API 與使用 Places Library 抓取地圖上的店家資料，加入篩選條件(與使用者的距離、店家類型、店家價位、評分等)幫使用者隨機選出附近的餐廳、咖啡廳或酒吧，讓使用者省去在地圖上不斷放大縮小尋找週邊餐廳、咖啡廳的過程。
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## #Built with
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+-React.js
+-Tailwind CSS
+-VsCode
