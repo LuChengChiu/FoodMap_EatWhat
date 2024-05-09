@@ -390,6 +390,7 @@ export default function HomeNew() {
                     name="distance"
                     id="distance500"
                     value={500}
+                    defaultChecked={true}
                     className="toggle-input"
                     onClick={(e: any) => setDistance(parseInt(e.target.value))}
                   />
