@@ -23,7 +23,30 @@ export default function HomeNew() {
   const [oldCircle, setOldCircle] = useState<Object | any>();
   const [oldMarkers, setOldMarkers] = useState<Array<any>>();
   const [listMove, setListMove] = useState(false);
-  window.onload = function () {
+
+  window.onload = function async() {
+    const initMap = () => {
+      try {
+        const loader = new Loader({
+          apiKey: import.meta.env.VITE_REACT_APP_FOOD_MAP_API_KEY,
+          version: "weekly",
+        });
+
+        loader.load().then(async () => {
+          const { Map } = (await google.maps.importLibrary(
+            "maps"
+          )) as google.maps.MapsLibrary;
+          map = new Map(document.getElementById("map") as HTMLElement, {
+            center: { lat: 25.038429, lng: 121.535889 },
+            zoom: 17,
+          });
+          setTheMap(map);
+        });
+        getCurrentLoc();
+      } catch (err) {
+        console.log("initMap Error: ", err);
+      }
+    };
     initMap();
     document.addEventListener("click", (e: any) => {
       const isDropdownBtn = e.target.matches("[data-dropdown-btn]");
@@ -48,23 +71,7 @@ export default function HomeNew() {
   //     // initMap();
   //   }
   // }, []);
-  const initMap = () => {
-    const loader = new Loader({
-      apiKey: import.meta.env.VITE_REACT_APP_FOOD_MAP_API_KEY,
-      version: "weekly",
-    });
-    loader.load().then(async () => {
-      const { Map } = (await google.maps.importLibrary(
-        "maps"
-      )) as google.maps.MapsLibrary;
-      map = new Map(document.getElementById("map") as HTMLElement, {
-        center: { lat: 25.038429, lng: 121.535889 },
-        zoom: 17,
-      });
-      setTheMap(map);
-    });
-    getCurrentLoc();
-  };
+
   const getCurrentLoc = () => {
     const personSvgMark = {
       path: "M12 21.325q-.35 0-.7-.125t-.625-.375Q9.05 19.325 7.8 17.9t-2.087-2.762t-1.275-2.575T4 10.2q0-3.75 2.413-5.975T12 2t5.588 2.225T20 10.2q0 1.125-.437 2.363t-1.275 2.575T16.2 17.9t-2.875 2.925q-.275.25-.625.375t-.7.125M12 15q1.4 0 2.525-.687T16.3 12.5q-.875-.725-1.975-1.112T12 11t-2.325.388T7.7 12.5q.65 1.125 1.775 1.813T12 15m0-5q.825 0 1.413-.587T14 8t-.587-1.412T12 6t-1.412.588T10 8t.588 1.413T12 10",
