@@ -1,5 +1,5 @@
 import { Loader } from "@googlemaps/js-api-loader";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 // import { setMap } from "google.maps";
 import "./App.css";
@@ -25,7 +25,7 @@ export default function HomeNew() {
   const [listMove, setListMove] = useState(false);
   const initMap = () => {
     alert(
-      "歡迎使用Eat What!食物地圖!透過上方的篩選設定來為您挑選附近的餐廳/咖啡廳/酒吧"
+      "歡迎使用Eat What!食物地圖!\n透過上方的篩選設定來為您挑選附近的餐廳, 咖啡廳, 酒吧"
     );
     try {
       const loader = new Loader({
@@ -48,8 +48,13 @@ export default function HomeNew() {
       console.log("initMap Error: ", err);
     }
   };
+  useEffect(() => {
+    if (document.getElementById("map")) {
+      initMap();
+    }
+  }, []);
   window.onload = function async() {
-    initMap();
+    // initMap();
     document.addEventListener("click", (e: any) => {
       const isDropdownBtn = e.target.matches("[data-dropdown-btn]");
       if (!isDropdownBtn && e.target.closest("[data-dropdown]") != null) return;
