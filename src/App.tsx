@@ -8,8 +8,8 @@ function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/" Component={Home} />
-          <Route path="about" Component={About} />
+          <Route path="/foodmap" Component={Home} />
+          <Route path="/" Component={About} />
         </Routes>
       </Router>
     </>
