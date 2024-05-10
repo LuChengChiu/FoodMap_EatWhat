@@ -23,30 +23,32 @@ export default function HomeNew() {
   const [oldCircle, setOldCircle] = useState<Object | any>();
   const [oldMarkers, setOldMarkers] = useState<Array<any>>();
   const [listMove, setListMove] = useState(false);
+  const initMap = () => {
+    alert(
+      "歡迎使用Eat What!食物地圖!透過上方的篩選設定來為您挑選附近的餐廳/咖啡廳/酒吧"
+    );
+    try {
+      const loader = new Loader({
+        apiKey: import.meta.env.VITE_REACT_APP_FOOD_MAP_API_KEY,
+        version: "weekly",
+      });
 
+      loader.load().then(async () => {
+        const { Map } = (await google.maps.importLibrary(
+          "maps"
+        )) as google.maps.MapsLibrary;
+        map = new Map(document.getElementById("map") as HTMLElement, {
+          center: { lat: 25.038429, lng: 121.535889 },
+          zoom: 17,
+        });
+        setTheMap(map);
+      });
+      getCurrentLoc();
+    } catch (err) {
+      console.log("initMap Error: ", err);
+    }
+  };
   window.onload = function async() {
-    const initMap = () => {
-      try {
-        const loader = new Loader({
-          apiKey: import.meta.env.VITE_REACT_APP_FOOD_MAP_API_KEY,
-          version: "weekly",
-        });
-
-        loader.load().then(async () => {
-          const { Map } = (await google.maps.importLibrary(
-            "maps"
-          )) as google.maps.MapsLibrary;
-          map = new Map(document.getElementById("map") as HTMLElement, {
-            center: { lat: 25.038429, lng: 121.535889 },
-            zoom: 17,
-          });
-          setTheMap(map);
-        });
-        getCurrentLoc();
-      } catch (err) {
-        console.log("initMap Error: ", err);
-      }
-    };
     initMap();
     document.addEventListener("click", (e: any) => {
       const isDropdownBtn = e.target.matches("[data-dropdown-btn]");
