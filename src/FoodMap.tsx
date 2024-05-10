@@ -51,33 +51,51 @@ export default function FoodMap() {
   useEffect(() => {
     if (document.getElementById("map")) {
       initMap();
+      // alert("HI");
+      console.log("78");
+      document.addEventListener("click", (e: any) => {
+        const isDropdownBtn = e.target.matches("[data-dropdown-btn]");
+        if (!isDropdownBtn && e.target.closest("[data-dropdown]") != null)
+          return;
+        let currentDropdown: any;
+        if (isDropdownBtn) {
+          currentDropdown = e.target.closest("[data-dropdown]");
+          currentDropdown.classList.add("active");
+        }
+        document
+          .querySelectorAll("[data-dropdown].active")
+          .forEach((dropdown) => {
+            if (dropdown === currentDropdown) return;
+            dropdown.classList.remove("active");
+          });
+        console.log(isDropdownBtn, currentDropdown);
+      });
     }
   }, []);
-  window.onload = function async() {
-    // initMap();
-    document.addEventListener("click", (e: any) => {
-      const isDropdownBtn = e.target.matches("[data-dropdown-btn]");
-      if (!isDropdownBtn && e.target.closest("[data-dropdown]") != null) return;
+  // window.onload = function () {
+  //   // initMap();
+  //   // alert("HI");
+  //   // console.log("78");
+  //   // document.addEventListener("click", (e: any) => {
+  //   //   const isDropdownBtn = e.target.matches("[data-dropdown-btn]");
+  //   //   if (!isDropdownBtn && e.target.closest("[data-dropdown]") != null) return;
+  //   //   let currentDropdown: any;
+  //   //   if (isDropdownBtn) {
+  //   //     currentDropdown = e.target.closest("[data-dropdown]");
+  //   //     currentDropdown.classList.toggle("active");
+  //   //     console.log("WHY STILL NOT");
+  //   //   }
+  //   //   document
+  //   //     .querySelectorAll("[data-dropdown].active")
+  //   //     .forEach((dropdown) => {
+  //   //       if (dropdown === currentDropdown) return;
+  //   //       dropdown.classList.remove("active");
+  //   //     });
+  //   //   console.log(isDropdownBtn, currentDropdown);
+  //   // });
+  // };
 
-      let currentDropdown: any;
-      if (isDropdownBtn) {
-        currentDropdown = e.target.closest("[data-dropdown]");
-        currentDropdown.classList.toggle("active");
-      }
-      document
-        .querySelectorAll("[data-dropdown].active")
-        .forEach((dropdown) => {
-          if (dropdown === currentDropdown) return;
-          dropdown.classList.remove("active");
-        });
-    });
-  };
   infoWindow = new google.maps.InfoWindow();
-  // useEffect(() => {
-  //   if (document.getElementById("map")) {
-  //     // initMap();
-  //   }
-  // }, []);
 
   const getCurrentLoc = () => {
     const personSvgMark = {
@@ -742,7 +760,7 @@ export default function FoodMap() {
           </span>
           <div
             className={
-              "w-full h-60 overflow-hidden md:h-full tb:h-auto sm:h-auto " +
+              "w-full h-60 overflow-hidden md:h-auto tb:h-auto sm:h-auto " +
               (storeNum <= 2 && "h-auto") +
               " " +
               (restaurants?.length > 0 && "opacity-100")
@@ -770,7 +788,7 @@ export default function FoodMap() {
             </button>
             <div
               className={
-                "w-full h-11/12 transition-transform duration-700 ease-out flex flex-col md:flex-row md:h-auto md:overflow-x-auto tb:flex-row tb:h-auto tb:overflow-auto sm:flex-row sm:h-aut sm:overflow-x-auto relative top-7 sm:top-2.5 sm:h-20 " +
+                "w-full h-11/12 transition-transform duration-700 ease-out flex flex-col md:flex-row md:h-20 md:overflow-x-auto tb:flex-row tb:h-auto tb:overflow-auto sm:flex-row sm:h-aut sm:overflow-x-auto relative sm:h-auto " +
                 (listMove && "list-move")
               }
             >
@@ -781,7 +799,7 @@ export default function FoodMap() {
                   }
                   return (
                     <div
-                      className="w-full h-16 mb-2 flex justify-between items-center border-primary border-b md:border-b-0 md:border-r md:mb-0 md:mr-2 md:pr-2
+                      className="w-full h-14 mb-2 flex justify-between items-center border-primary border-b md:border-b-0 md:border-r md:mb-0 md:mr-2 md:pr-2
                 tb:border-b-0 tb:border-r tb:mr-2 tb:pr-2 tb:mb-0
                 sm:border-b-0 sm:border-r sm:mr-2 sm:pr-2 sm:mb-0 sm:h-auto sm:self-end"
                     >
