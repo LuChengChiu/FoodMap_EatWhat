@@ -11,7 +11,7 @@ export default function About() {
           className="about relative w-3/4 h-3/4 bg-background border-primary border-solid border-8 rounded-2xl py-14 px-10 flex flex-col items-center tb:py-10 tb:pb-20 tb:px-6 tb:h-auto sm:w-10/12 sm:px-3 sm:py-5"
         >
           <h1 className="font-Poetsen text-5xl text-accent text-center pb-2 border-b-2 border-secondary mb-10 tb:text-4xl tb:mb-3 sm:text-2xl sm:mb-2 sm:pb-0">
-            <NavLink to="/">Eat What ?</NavLink>
+            <NavLink to="/foodmap">Eat What ?</NavLink>
           </h1>
           <div>
             <p className="text-2xl leading-loose lg:text-xl md:text-lg tb:text-base sm:text-sm">
@@ -68,7 +68,7 @@ export default function About() {
               </div>
             </div>
             <NavLink
-              to="/"
+              to="/foodmap"
               className="absolute bottom-40 right-60 font-Poetsen transition-transform duration-300 hover:scale-125 hover:bg-accent rounded-xl  bg-primary text-white text-3xl px-5 py-2 lg:right-32 lg:bottom-60 md:bottom-20 md:right-52 tb:bottom-6 tb:right-40 tb:text-xl tb:hover:scale-110 sm:text-lg sm:right-20 sm:bottom-5 sm:hover:scale-110"
             >
               Go to Map !
