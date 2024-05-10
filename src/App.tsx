@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import About from "./About";
 import Home from "./Home";
+import FoodMap from "./FoodMap";
 import "./App.css";
 
 function App() {
@@ -8,8 +8,8 @@ function App() {
     <>
       <Router>
         <Routes>
-          <Route path="/foodmap" Component={Home} />
-          <Route path="/" Component={About} />
+          <Route path="/foodmap" Component={FoodMap} />
+          <Route path="/" Component={Home} />
         </Routes>
       </Router>
     </>
